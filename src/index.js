@@ -20,6 +20,8 @@ let totalPages = 0;
 
 async function onSearch(event) {
   event.preventDefault();
+  btnHidden(refs.loadMoreBtn, true);
+
   try {
     if (!event.target.elements.searchQuery.value.trim()) {
       refs.galleryEl.innerHTML = '';
@@ -30,22 +32,24 @@ async function onSearch(event) {
     name = event.target.elements.searchQuery.value.trim();
     pages = 1;
 
-    btnHidden(refs.loadMoreBtn, true);
     const data = await fetchArticles(name);
     if (!data.hits.length) {
       refs.galleryEl.innerHTML = '';
       btnHidden(refs.loadMoreBtn, true);
       return Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
     }
+
     galleryCards(data.hits)
-    totalPages = data.totalHits / 40;
+    totalPages = data.totalHits % 40 === 0 ? data.totalHits / 40 : (data.totalHits / 40) + 1;
+    notifixFinallyRequest(totalPages, pages);
+
     Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`);
     pages++;
     lightbox.refresh();
+
     if (pages < totalPages) {
       btnHidden(refs.loadMoreBtn, false);
     }
-
   } catch (error) {
     console.dir(error);
   }
@@ -58,6 +62,7 @@ async function fetchArticles(name, pages = 1) {
 
     const resp = await axios.get(url);
     // const respJson = await resp.json();
+    notifixFinallyRequest(totalPages, pages);
     return resp.data;
   } catch (error) {
     console.dir(error);
@@ -71,7 +76,9 @@ async function fetchMoreArticles() {
 
     const fetchArtcl = await fetchArticles(name, pages);
     galleryCardsMore(fetchArtcl.hits);
+    // notifixFinallyRequest(totalPages, pages);
     pages++;
+
     lightbox.refresh();
     if (pages < totalPages) {
       btnHidden(refs.loadMoreBtn, false);
@@ -92,7 +99,12 @@ function btnHidden(btn, trigger) {
   }
 }
 
-
 function openLightBox(event) {
   lightbox.overlay = true;
+}
+
+function notifixFinallyRequest(totalPages, pages) {
+  if (pages == totalPages.toFixed(0)) {
+    return Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+  }
 }
