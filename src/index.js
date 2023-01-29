@@ -1,10 +1,9 @@
 import Notiflix from 'notiflix';
 import SimpleLightbox from "simplelightbox";
-// import SimpleLightbox from "simplelightbox/dist/simple-lightbox.esm";
 import { refs, galleryCards, galleryCardsMore } from './cards.js';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-// const axios = require('axios').default;
+const axios = require('axios').default;
 const options = {
   enableKeyboard: true,
   captionDelay: 250,
@@ -23,6 +22,7 @@ async function onSearch(event) {
   event.preventDefault();
   try {
     if (!event.target.elements.searchQuery.value.trim()) {
+      refs.galleryEl.innerHTML = '';
       return Notiflix.Notify.info('Enter your request');
     }
 
@@ -32,6 +32,7 @@ async function onSearch(event) {
     btnHidden(refs.loadMoreBtn, true);
     const data = await fetchArticles(name);
     if (!data.hits.length) {
+      refs.galleryEl.innerHTML = '';
       return Notiflix.Notify.info('Enter correct request');
     }
     galleryCards(data.hits)
@@ -53,9 +54,9 @@ async function fetchArticles(name, pages = 1) {
     const key = '33172087-140883ac21b857d399fef061e';
     const url = `https://pixabay.com/api/?key=${key}&q=${name}&image_type=photo&per_page=40&page=${pages}&orientation=horizontal&safesearch=true`;
 
-    const resp = await fetch(url);
-    const respJson = await resp.json();
-    return respJson;
+    const resp = await axios.get(url);
+    // const respJson = await resp.json();
+    return resp.data;
   } catch (error) {
     console.dir(error);
     Notiflix.Notify.warning(error.message);
