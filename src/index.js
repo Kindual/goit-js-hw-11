@@ -23,6 +23,7 @@ async function onSearch(event) {
   try {
     if (!event.target.elements.searchQuery.value.trim()) {
       refs.galleryEl.innerHTML = '';
+      btnHidden(refs.loadMoreBtn, true);
       return Notiflix.Notify.info('Enter your request');
     }
 
@@ -33,7 +34,8 @@ async function onSearch(event) {
     const data = await fetchArticles(name);
     if (!data.hits.length) {
       refs.galleryEl.innerHTML = '';
-      return Notiflix.Notify.info('Enter correct request');
+      btnHidden(refs.loadMoreBtn, true);
+      return Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
     }
     galleryCards(data.hits)
     totalPages = data.totalHits / 40;
