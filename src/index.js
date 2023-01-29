@@ -62,7 +62,6 @@ async function fetchArticles(name, pages = 1) {
 
     const resp = await axios.get(url);
     // const respJson = await resp.json();
-    notifixFinallyRequest(totalPages, pages);
     return resp.data;
   } catch (error) {
     console.dir(error);
@@ -76,7 +75,7 @@ async function fetchMoreArticles() {
 
     const fetchArtcl = await fetchArticles(name, pages);
     galleryCardsMore(fetchArtcl.hits);
-    // notifixFinallyRequest(totalPages, pages);
+    notifixFinallyRequest(totalPages, pages);
     pages++;
 
     lightbox.refresh();
